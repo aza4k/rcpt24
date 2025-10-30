@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="bg-white p-6 rounded-lg shadow mb-6">
+    <div class="flex gap-6">
+      {% if medicine.image %}
+        <img src="{{ medicine.image.url }}" alt="{{ medicine.name }}" class="w-36 h-36 object-cover rounded">
+      {% endif %}
+      <div>
+        <h1 class="text-2xl font-bold text-green-700">{{ medicine.name }}</h1>
+        <p class="text-gray-700 mt-2">{{ medicine.description }}</p>
+        {% if medicine.analogs %}
+          <p class="mt-3 text-gray-600"><strong>Analoglar:</strong> {{ medicine.analogs }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <h2 class="text-xl font-semibold mb-4">Dorixonalar</h2>
+  <div id="map" class="mb-6"></div>
+  <div class="grid md:grid-cols-2 gap-4">
+    {% for inv in inventories %}
+      <div class="bg-white p-4 rounded shadow">
+        <a href="{% url 'pharmacy:pharmacy_detail' inv.pharmacy.id %}" class="text-green-700 font-semibold">{{ inv.pharmacy.name }}</a>
+        <p class="text-sm text-gray-600">{{ inv.pharmacy.address }}</p>
+        <p class="mt-2">💰 {{ inv.price }} so‘m — Miqdor: {{ inv.quantity }}</p>
+        {% if inv.pharmacy.phone %}<p class="text-sm">☎ {{ inv.pharmacy.phone }}</p>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const points = [
+    {% for inv in inventories %}
+      {% if inv.pharmacy.lat and inv.pharmacy.lng %}
+        {name: "{{ inv.pharmacy.name|escapejs }}", lat: {{ inv.pharmacy.lat }}, lng: {{ inv.pharmacy.lng }}, info: "{{ inv.pharmacy.address|escapejs }}"},
+      {% endif %}
+    {% endfor %}
+  ];
+  if (points.length) {
+    const map = L.map('map').setView([points[0].lat, points[0].lng], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    points.forEach(p => L.marker([p.lat, p.lng]).addTo(map).bindPopup(`<b>${p.name}</b><br>${p.info}`));
+  }
+});
+</script>
+{% endblock %}

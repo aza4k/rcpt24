@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Recept24.uz{% endblock %}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 400px; border-radius: 1rem; }
+    :root {
+      --green-main: #;
+      --accent-yellow: #F4B400;
+      --bg-light: #F9FAFB;
+    }
+    .bg-success-700 {
+      background-color: #009846;
+    }
+  </style>
+</head>
+<body class="bg-[var(--bg-light)] min-h-screen flex flex-col">
+
+<!-- HEADER -->
+<header class="bg-[var(--green-main)] text-gray-900 shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <a href="/" class="text-2xl font-extrabold tracking-tight">
+              <img src="/static/img/logo.png" alt="Recept24.uz" class="w-40 h-17  ">
+      </a>
+    </div>
+
+    <nav class="hidden sm:flex gap-8 text-sm font-medium">
+      <a href="/" class="hover:text-[var(--accent-yellow)] transition">Qidirish</a>
+      <a href="/admin/" class="hover:text-[var(--accent-yellow)] transition">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="flex-1 container mx-auto px-6 py-8">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-gray-300 py-6 text-center mt-auto border-t border-[var(--green-main)]">
+  <p class="text-sm">&copy; 2025 <span class="text-[var(--green-main)] font-semibold">Recept24.uz</span> — barcha huquqlar himoyalangan.</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+{% block scripts %}{% endblock %}
+<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha354-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoDonecIsqAXLMmvATEcHJ2inIYWY" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="bg-white p-6 rounded-lg shadow mb-6">
+    <h1 class="text-2xl font-bold text-green-700">{{ pharmacy.name }}</h1>
+    <p class="text-gray-600">{{ pharmacy.address }}</p>
+    {% if pharmacy.phone %}<p class="text-sm mt-1">☎ {{ pharmacy.phone }}</p>{% endif %}
+    {% if pharmacy.working_hours %}<p class="text-sm mt-1">Ish vaqti: {{ pharmacy.working_hours }}</p>{% endif %}
+  </div>
+
+  <div id="map" class="mb-6"></div>
+
+  <h2 class="text-xl font-semibold mb-4">Dorilar ro‘yxati</h2>
+  <div class="grid md:grid-cols-2 gap-4">
+    {% for inv in inventories %}
+      <div class="bg-white p-4 rounded shadow">
+        <a href="{% url 'pharmacy:medicine_detail' inv.medicine.slug %}" class="font-semibold text-green-700">{{ inv.medicine.name }}</a>
+        <p class="text-sm text-gray-600">Miqdor: {{ inv.quantity }}</p>
+        <p class="text-sm">💰 {{ inv.price }} so‘m</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const ph = {
+    lat: {{ pharmacy.lat|default:"null" }},
+    lng: {{ pharmacy.lng|default:"null" }},
+    name: "{{ pharmacy.name|escapejs }}",
+    address: "{{ pharmacy.address|escapejs }}"
+  };
+  if (ph.lat && ph.lng) {
+    const map = L.map('map').setView([ph.lat, ph.lng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.marker([ph.lat, ph.lng]).addTo(map).bindPopup(`<b>${ph.name}</b><br>${ph.address}`).openPopup();
+  }
+});
+</script>
+{% endblock %}

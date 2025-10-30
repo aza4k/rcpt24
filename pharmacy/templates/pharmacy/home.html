@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}Recept24.uz — Dorilarni onlayn toping{% endblock %}
+
+{% block content %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // === Live search ===
+  const input = document.querySelector("input[name='q']");
+  const dropdown = document.getElementById("live-results");
+
+  input.addEventListener("input", async () => {
+    const q = input.value.trim();
+    if (q.length < 2) {
+      dropdown.classList.add("hidden");
+      dropdown.innerHTML = "";
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/search/?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+
+      if (!data.length) {
+        dropdown.innerHTML = `<div class='p-2 text-gray-500'>Natija yo‘q</div>`;
+      } else {
+        dropdown.innerHTML = data
+          .map(
+            d => `<div class='p-2 hover:bg-emerald-50 cursor-pointer'
+                     onclick="window.location.href='/medicine/${d.slug}/'">
+                     <strong>${d.name}</strong>
+                     <span class='text-gray-500 text-sm'> — ${d.pharmacies_count} dorixona</span>
+                   </div>`
+          )
+          .join("");
+      }
+
+      dropdown.classList.remove("hidden");
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  document.addEventListener("click", e => {
+    if (!input.contains(e.target)) dropdown.classList.add("hidden");
+  });
+
+  // === Leaflet map ===
+  const points = [
+    {% for inv in inventories %}
+      {% if inv.pharmacy.lat and inv.pharmacy.lng %}
+        {name: "{{ inv.pharmacy.name|escapejs }}", lat: {{ inv.pharmacy.lat }}, lng: {{ inv.pharmacy.lng }},
+         info: "{{ inv.pharmacy.address|escapejs }}", link: "{% url 'pharmacy:pharmacy_detail' inv.pharmacy.id %}"},
+      {% endif %}
+    {% endfor %}
+  ];
+
+  if (points.length) {
+    const map = L.map('map').setView([points[0].lat, points[0].lng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    points.forEach(p => {
+      L.marker([p.lat, p.lng]).addTo(map)
+        .bindPopup(`<b><a href="${p.link}" class="text-emerald-700">${p.name}</a></b><br>${p.info}`);
+    });
+  }
+});
+</script>
+
+<!-- Hero bo‘limi -->
+<section class="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-emerald-100 py-20">
+  <div class="absolute inset-0">
+    <div class="absolute top-0 left-10 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-40 animate-pulse"></div>
+    <div class="absolute bottom-0 right-10 w-80 h-80 bg-emerald-300 rounded-full blur-3xl opacity-30"></div>
+  </div>
+
+  <div class="relative max-w-6xl mx-auto px-6 text-center">
+    <h1 class="text-5xl font-extrabold text-emerald-700 mb-4 drop-shadow-md">
+      💊 Dorini topish endi oson!
+    </h1>
+    <p class="text-gray-700 text-lg mb-8">
+      Dorixonalardagi dorilar narxlarini solishtiring, eng yaqinini xaritadan toping.
+    </p>
+
+    <!-- <form method="get" action="{% url 'pharmacy:search' %}"
+          class="flex flex-col sm:flex-row justify-center gap-3 max-w-2xl mx-auto">
+      <input name="q" placeholder="🔍 Dori nomi (masalan: Paracetamol)"
+             class="flex-1 px-5 py-3 rounded-2xl shadow border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-2xl shadow-lg transition">
+        Qidirish
+      </button>
+    </form> -->
+     <form method="get" action="." class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-8 relative">
+    <div class="relative w-full sm:w-80">
+      <input type="text" name="q" placeholder="Dori nomi..." value="{{ request.GET.q }}"
+             class="w-full px-4 py-2 border rounded-2xl shadow focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      <!-- Live search results -->
+      <div id="live-results" class="absolute left-0 right-0 bg-white border rounded-lg mt-1 shadow-lg z-50 hidden"></div>
+    </div>
+
+    <input type="text" name="city" placeholder="Manzil bo‘yicha" value="{{ request.GET.city }}"
+           class="w-full sm:w-60 px-4 py-2 border rounded-2xl shadow focus:outline-none focus:ring-2 focus:ring-emerald-500">
+
+
+    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+      <input type="checkbox" name="available" value="1" {% if request.GET.available == '1' %}checked{% endif %}>
+      Mavjud (omborda)
+    </label>
+    <button type="submit"
+            class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-2xl shadow transition">
+      Qidirish
+    </button>
+  </form>
+
+  </div>
+</section>
+
+<!-- Mashhur dorilar -->
+<section class="relative py-20 bg-white">
+  <div class="absolute inset-0">
+    <div class="absolute top-1/2 -left-20 w-80 h-80 bg-emerald-100 rounded-full blur-3xl opacity-40"></div>
+    <div class="absolute bottom-10 right-10 w-64 h-64 bg-emerald-200 rounded-full blur-2xl opacity-30"></div>
+  </div>
+
+  <div class="relative max-w-6xl mx-auto px-5">
+    <h2 class="text-3xl font-bold text-emerald-700 mb-10 text-center">🌟 Mashhur dorilar</h2>
+
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      {% for medicine in popular_medicines %}
+      <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl hover:scale-[1.02] transition-transform p-6 text-center border border-emerald-100 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-tr from-emerald-50 to-transparent opacity-30"></div>
+
+        {% if medicine.image %}
+        <div class="relative z-10 flex justify-center mb-5">
+          <img src="{{ medicine.image.url }}" alt="{{ medicine.name }}"
+               class="w-48 h-48 object-cover rounded-2xl shadow-md border border-emerald-100">
+        </div>
+        {% else %}
+        <div class="bg-emerald-50 w-48 h-48 rounded-2xl mx-auto flex items-center justify-center mb-5 shadow-inner">
+          <span class="text-6xl">💊</span>
+        </div>
+        {% endif %}
+
+        <h3 class="relative z-10 text-xl font-semibold text-emerald-700 mb-1">{{ medicine.name }}</h3>
+        {% if medicine.form %}
+          <p class="text-gray-500 text-sm mb-3">{{ medicine.form }}</p>
+        {% endif %}
+        <a href="{% url 'pharmacy:medicine_detail' medicine.slug %}"
+           class="relative z-10 inline-block mt-2 text-emerald-600 font-medium hover:text-emerald-800 transition">
+          Batafsil →
+        </a>
+      </div>
+      {% empty %}
+      <p class="text-gray-500 col-span-full text-center">Dorilar topilmadi.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Mashhur dorixonalar -->
+<section class="relative py-20 bg-gradient-to-b from-emerald-50 via-white to-emerald-100">
+  <div class="absolute inset-0">
+    <div class="absolute top-0 left-0 w-72 h-72 bg-emerald-300 rounded-full blur-3xl opacity-30"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
+  </div>
+
+  <div class="relative max-w-6xl mx-auto px-5">
+    <h2 class="text-3xl font-bold text-emerald-700 mb-10 text-center">🏥 Mashhur dorixonalar</h2>
+
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      {% for pharmacy in popular_pharmacies %}
+      <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl transition transform hover:-translate-y-1 overflow-hidden border border-emerald-100">
+        {% if pharmacy.image %}
+          <img src="{{ pharmacy.image.url }}" alt="{{ pharmacy.name }}" 
+               class="w-full h-48 object-cover rounded-t-2xl">
+        {% else %}
+          <div class="bg-emerald-50 w-full h-48 flex items-center justify-center text-5xl">🏥</div>
+        {% endif %}
+        <div class="p-5">
+          <h3 class="text-lg font-semibold text-emerald-700 mb-1">{{ pharmacy.name }}</h3>
+          <p class="text-gray-500 text-sm mb-1">{{ pharmacy.address }}</p>
+          <p class="text-gray-400 text-xs">{{ pharmacy.working_hours }}</p>
+          <a href="{% url 'pharmacy:pharmacy_detail' pharmacy.id %}" 
+             class="inline-block mt-2 text-emerald-600 font-medium hover:text-emerald-800 transition">
+            Batafsil →
+          </a>
+        </div>
+      </div>
+      {% empty %}
+        <p class="text-gray-500 text-center col-span-full">Dorixonalar topilmadi.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Yangiliklar bo‘limi -->
+<section class="news-section py-10 bg-green-50">
+  <div class="container mx-auto px-6">
+    <h2 class="text-3xl font-bold text-green-700 mb-8 text-center">So‘nggi yangiliklar</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {% for news in latest_news %}
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+          {% if news.image %}
+            <img src="{{ news.image.url }}" alt="{{ news.title }}" class="w-full h-48 object-cover">
+          {% endif %}
+          <div class="p-5">
+            <h3 class="text-lg font-semibold text-green-700 mb-2">{{ news.title }}</h3>
+            <p class="text-gray-600 text-sm mb-4">{{ news.summary|truncatewords:20 }}</p>
+            <a href="{% url 'pharmacy:news_detail' news.slug %}" class="text-green-600 hover:text-green-800 font-medium">
+              Batafsil →
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}
