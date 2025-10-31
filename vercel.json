@@ -1,11 +1,17 @@
 {
-  "buildCommand": "bash build_file.sh",
   "builds": [
-    { "src": "recept/wsgi.py", "use": "@vercel/python" },
-    { "src": "staticfiles/**/*", "use": "@vercel/static" }
+    {
+      "src": "manage.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "15mb" }
+    }
   ],
+  "buildCommand": "bash build_file.sh",
+  "outputDirectory": ".",
   "routes": [
-    { "src": "/static/(.*)", "dest": "/staticfiles/$1" },
-    { "src": "/(.*)", "dest": "recept/wsgi.py" }
+    {
+      "src": "/(.*)",
+      "dest": "manage.py"
+    }
   ]
 }
