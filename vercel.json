@@ -1,8 +1,10 @@
 {
   "builds": [
-    { "src": "recept/wsgi.py", "use": "@vercel/python" }
+    { "src": "recept/wsgi.py", "use": "@vercel/python" },
+    { "src": "staticfiles/**/*", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/static/(.*)", "dest": "/staticfiles/$1" },
     { "src": "/(.*)", "dest": "recept/wsgi.py" }
   ]
 }
