@@ -1,6 +1,6 @@
 #!/bin/bash
-echo "🚀 Build started..."
-pip install -r requirements.txt
+echo "Collecting static files..."
 python3 manage.py collectstatic --noinput
-python3 manage.py migrate
-echo "✅ Build completed!"
+echo "Migration running..."
+python3 manage.py migrate --noinput
+echo "Build finished successfully."
