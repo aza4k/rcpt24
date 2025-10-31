@@ -27,6 +27,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
     'jazzmin',
+    'cloudinary',
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
