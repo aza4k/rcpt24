@@ -12,9 +12,18 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-_1a8lxgxb9)e4q+_w#wpaa-xel$j8gtc!!3uo+e#ds3jk_28p1'
-DEBUG = False
+DEBUG = False  # Railway'da ishlab chiqarish muhitida shart!
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'recept24.up.railway.app',
+    'localhost',
+    '127.0.0.1',
+    '*'
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://recept24.up.railway.app',
+]
 
 INSTALLED_APPS = [
     'jazzmin',
