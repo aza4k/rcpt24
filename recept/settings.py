@@ -30,8 +30,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ✅ static uchun kerak
+    'django.middleware.security.SecurityMiddleware',# ✅ static uchun kerak
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -76,16 +75,18 @@ USE_I18N = True
 USE_TZ = True
 
 # ✅ STATIC SETTINGS
+# STATIC FILES (CSS, JS, IMG)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # bu sizning local static papkangiz
-STATIC_ROOT = BASE_DIR / 'staticfiles'    # collectstatic shu yerga joylaydi
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# ✅ WhiteNoise static storage
+# WhiteNoise bilan staticlarni serve qilish
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# MEDIA FILES (if any)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 # ✅ REST va CORS
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
