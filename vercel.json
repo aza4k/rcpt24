@@ -1,17 +1,15 @@
 {
   "builds": [
     {
-      "src": "manage.py",
-      "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb" }
+      "src": "recept/wsgi.py",
+      "use": "@vercel/python"
     }
   ],
-  "buildCommand": "bash build_file.sh",
-  "outputDirectory": ".",
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "manage.py"
+      "dest": "recept/wsgi.py"
     }
-  ]
+  ],
+  "buildCommand": "bash build_file.sh"
 }
