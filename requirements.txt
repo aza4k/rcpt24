@@ -12,3 +12,5 @@ python-dotenv==1.2.1
 sqlparse==0.5.3
 whitenoise
 gunicorn
+cloudinary
+django-cloudinary-storage
