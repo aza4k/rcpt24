@@ -1,14 +1,8 @@
 {
   "builds": [
-    {
-      "src": "recept/wsgi.py",
-      "use": "@vercel/python"
-    }
+    { "src": "recept/wsgi.py", "use": "@vercel/python" }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "recept/wsgi.py"
-    }
+    { "src": "/(.*)", "dest": "recept/wsgi.py" }
   ]
 }
