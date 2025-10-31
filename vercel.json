@@ -1,4 +1,5 @@
 {
+  "buildCommand": "bash build_file.sh",
   "builds": [
     { "src": "recept/wsgi.py", "use": "@vercel/python" },
     { "src": "staticfiles/**/*", "use": "@vercel/static" }
